@@ -9,19 +9,19 @@ savebackups="/etc /home /root /var /usr /bin" # Directories from which copies sh
 ###############################################
 
 
-DATA=`date +"%d-%m-%Y,%I:%M"` # data
+DATA="date +%d-%m-%Y,%I:%M" # data
 
 Start() {
 while read output;
 do
   usep=$(echo $output | awk '{ print $1}' | cut -d'%' -f1  )
   if [ $usep -ge $limitsizelocal ] ; then
-		echo "[$DATA] There is not enough disk space to create a backup. disk space $usep%, limit $limitsizelocal%." >> "${logFile}"; 
+		echo "[`$DATA`] There is not enough disk space to create a backup. disk space $usep%, limit $limitsizelocal%." >> "${logFile}"; 
 			exit 1
     else
-		tar --warning=no-file-changed --absolute-names -cpzf $pathbackup/$DATA.tar.gz $savebackups
-			mysqldump --defaults-file=/etc/mysql/debian.cnf --routines --flush-privileges --all-databases >$pathmysql/$DATA.sql
-				echo "[$DATA] The copy has been created" >> "${logFile}"; 
+		tar --warning=no-file-changed --absolute-names -cpzf $pathbackup/`$DATA`.tar.gz $savebackups
+			mysqldump --defaults-file=/etc/mysql/debian.cnf --routines --flush-privileges --all-databases >$pathmysql/`$DATA`.sql
+				echo "[`$DATA`] The copy has been created" >> "${logFile}"; 
 					exit 0
 	fi
 
@@ -29,7 +29,7 @@ done
 }
 
 Start_APK() {
-echo "[$DATA] Script started" >> "${logFile}"; 
+echo "[`$DATA`] Script started" >> "${logFile}"; 
 find $pathbackup -mtime +7 -exec rm -R {} \; && find $pathmysql -mtime +7 -exec rm -R {} \;
 if [ "$EXCLUDE_LIST" != "" ] ; then
   df -hP |  grep -vE "^[^/]|tmpfs|cdrom|${EXCLUDE_LIST}" | awk '{print $5 " " $6}' | Start
